@@ -2,6 +2,93 @@
 Simplicial Complexes for manim
 """
 from manimlib.imports import *
+import numpy as np
+
+
+class SimplicialComplex(VGroup):
+	def __init__(
+		self,
+		points,
+		simplices,
+		times,
+		tri_opacity=0.2,
+		**kwargs
+	):
+		super().__init__(**kwargs)
+
+		self.current_time = -np.inf
+
+		self.pts = points
+		self.tri_opacity=tri_opacity
+
+		self.time = []
+		self.dims = []
+
+		for (s, t) in zip(simplices, times):
+			self.add_simplex(s, t, **kwargs)
+
+	def time_steps(self):
+		return np.unique(self.time)
+
+
+	def last_time(self):
+		return np.max(self.time)
+
+
+	def step_to(self, t):
+		newgp = VGroup(*[self[i] for i in range(len(self.time)) if self.current_time < self.time[i] <= t])
+		self.current_time = t
+		return newgp
+
+
+	def get_time(self):
+		return self.current_time
+
+
+	def reset_time(self):
+		self.current_time = -np.inf
+		return self.current_time
+
+
+	def at_time(self, t):
+		return VGroup(*[self[i] for i in range(len(self.time)) if self.time[i] <= t])
+
+
+	def add_simplex(self, spx, t, **kwargs):
+		print("adding ", spx)
+		if len(spx) == 1:
+			# add dot
+			self.add(
+				Dot(self.pts[spx[0]], **kwargs)
+			)
+			self.time.append(t)
+			self.dims.append(0)
+
+		elif len(spx) == 2:
+			# add edge
+			self.add(
+				Line(
+					self.pts[spx[0]],
+					self.pts[spx[1]],
+					**kwargs
+				)
+			)
+			self.time.append(t)
+			self.dims.append(1)
+
+		elif len(spx) == 3:
+			# add triangle
+			self.add(
+				Polygon(
+					*[self.pts[i] for i in spx],
+					**kwargs
+				).set_fill(self.color, opacity=self.tri_opacity)
+			)
+			self.time.append(t)
+			self.dims.append(2)
+
+		else:
+			raise ValueError
 
 def get_points(triangles):
     trinp = np.array(triangles).reshape(-1,3)
