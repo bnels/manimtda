@@ -2,8 +2,7 @@ from manimlib.imports import *
 import numpy as np
 
 # import manimtda
-from manimtda.linalg import *
-from manimtda.complex import *
+from manimtda import *
 
 class LEUP(Scene):
 	def construct(self):
