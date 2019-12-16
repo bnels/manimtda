@@ -155,3 +155,18 @@ class Rips(Scene):
 
 		self.play(FadeOut(X), run_time=3)
 		self.wait(2)
+
+
+class Barcode(Scene):
+	def construct(self):
+		pairs = [
+		[0,3],
+		[0,1],
+		[1,2],
+		[2,3],
+		]
+		BC = PersistenceBarcode(pairs, spacing=0.25, color=RED)
+		self.play(
+		*BC.creation_animations()
+		)
+		self.wait(2)
