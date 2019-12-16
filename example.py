@@ -115,18 +115,18 @@ def gen_circle(n=10, r=3):
 class Rips(Scene):
 	def construct(self):
 		pts = gen_circle(n=10)
-		print(pts.shape)
+		#print(pts.shape)
 		pts = pts + np.random.normal(0, 0.2, size=pts.shape)
 
 
-		simplices, times = get_Rips_filtration(pts)
+		simplices, times = get_Rips_filtration(pts, rmax=5.0)
 
-		X = SimplicialComplex(pts,simplices,times, tri_opacity=0.1, color=BLUE) #.move_to(3*RIGHT)
+		X = SimplicialComplex(pts,simplices,times, tri_opacity=0.2, color=BLUE) #.move_to(3*RIGHT)
 
 		anim = []
 		maxt = X.last_time()
 		for t in X.time_steps():
-			print(t)
+			#print(t)
 			Xt = X.step_to(t)
 			anim.append(FadeIn(
 				Xt,
@@ -143,6 +143,16 @@ class Rips(Scene):
 
 		self.play(*anim)
 		self.wait(3)
+		rad = 2.5
+		vshift=0.5
+		hshift=-0.5
+		shift = np.array([2, 0, 0])
+		self.play(
+			X.apply_function,
+			lambda p: to_sphere(p, rad=rad, shift=shift, vshift=vshift, hshift=hshift),
+			run_time=3,
+		)
+		self.wait(2)
 
 		self.play(FadeOut(X), run_time=3)
 		self.wait(2)

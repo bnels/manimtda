@@ -55,7 +55,7 @@ class SimplicialComplex(VGroup):
 
 
 	def add_simplex(self, spx, t, **kwargs):
-		print("adding ", spx)
+		# print("adding ", spx)
 		if len(spx) == 1:
 			# add dot
 			self.add(

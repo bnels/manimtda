@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
-def get_Rips_filtration(pts, tmax=np.inf):
+def get_Rips_filtration(pts, rmax=np.inf):
 	pts = np.array(pts)
 	simplices = []
 	times = []
@@ -14,7 +14,7 @@ def get_Rips_filtration(pts, tmax=np.inf):
 
 	for i in range(n):
 		for j in range(i):
-			if dists[i,j] <= tmax:
+			if dists[i,j] <= rmax:
 				simplices.append([j,i])
 				times.append(dists[i,j])
 
@@ -22,7 +22,7 @@ def get_Rips_filtration(pts, tmax=np.inf):
 		for j in range(i):
 			for k in range(j):
 				tijk = np.max([dists[i,j], dists[i,k], dists[j,k]])
-				if tijk <= tmax:
+				if tijk <= rmax:
 					simplices.append([k, j,i])
 					times.append(np.max([dists[i,j], dists[i,k], dists[j,k]]))
 
