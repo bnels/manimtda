@@ -79,8 +79,8 @@ class QuiverAlg(SlideScene):
         self.slide_break()
 
         # create two matrices and put on arrows
-        A = Square()
-        A2 = Square()
+        A = Square(color=BLACK)
+        A2 = Square(color=BLACK)
         Grp(A,A2).scale(0.2)
         put_on_arrow(A,tArr)
         put_on_arrow(A2,tArr2)
