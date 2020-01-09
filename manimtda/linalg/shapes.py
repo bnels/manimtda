@@ -1,26 +1,26 @@
 from manimlib.imports import *
 import numpy as np
 
-def Dmat():
+def Dmat(color=WHITE):
     return VGroup(
-        Square(),
-        Line(np.array([1,-1,0]), np.array([-1,1,0]))
+        Square(color=color),
+        Line(np.array([1,-1,0]), np.array([-1,1,0]),color=color)
     )
 
-def ELmat():
+def ELmat(color=WHITE):
     return VGroup(
-        Square(),
-        Line(np.array([-1,1,0]), np.array([-0.3,0.3,0])),
-        Line(np.array([-0.3,0,0]), np.array([0,-0.3,0]))
+        Square(color=color),
+        Line(np.array([-1,1,0]), np.array([-0.3,0.3,0]),color=color),
+        Line(np.array([-0.3,0,0]), np.array([0,-0.3,0]),color=color)
     )
 
-def Pmat():
+def Pmat(color=WHITE):
     return VGroup(
-        Square(),
-        Dot(np.array([0.33, 0.66, 0])),
-        Dot(np.array([0.66, 0.33, 0])),
-        Dot(np.array([-0.33, -0.66, 0])),
-        Dot(np.array([-0.66, -0.33, 0]))
+        Square(color=color),
+        Dot(np.array([0.33, 0.66, 0]),color=color),
+        Dot(np.array([0.66, 0.33, 0]),color=color),
+        Dot(np.array([-0.33, -0.66, 0]),color=color),
+        Dot(np.array([-0.66, -0.33, 0]),color=color)
     )
 
 def Lmat(color=BLUE):

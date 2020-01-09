@@ -8,8 +8,8 @@ class LEUPFact(VMobject):
     def __init__(self,A,Arr,**kwargs):
         self.L = Lmat()
         self.U = Umat()
-        self.EL = ELmat()
-        self.P = Pmat()
+        self.EL = ELmat(color=BLACK)
+        self.P = Pmat(color=BLACK)
 
         lst = [self.L, self.EL, self.U, self.P]
 
@@ -50,22 +50,22 @@ class LEUPFact(VMobject):
 
 class QuiverAlg(SlideScene):
     CONFIG={
-        #"camera_config":{"background_color":WHITE},
+        "camera_config":{"background_color":WHITE},
         "video_slides_dir":"../video_slides"
     }
     def construct(self):
-        title = TextMobject("Quiver Algorithm")
+        title = TextMobject("Quiver Algorithm",color=BLACK)
         title.shift(2.5 * UP)
         self.add(title)
 
         the_target_of = CreateMoveToTargetCtxtMgr(self)
 
         # Make quiver
-        tA = TexMobject("\\cdot")
-        tB = TexMobject("\\cdot")
-        tC = TexMobject("\\cdot")
+        tA = TexMobject("\\cdot",color=BLACK)
+        tB = TexMobject("\\cdot",color=BLACK)
+        tC = TexMobject("\\cdot",color=BLACK)
 
-        tArr = TexMobject("\\xrightarrow{\\makebox[1cm]{}}");
+        tArr = TexMobject("\\xrightarrow{\\makebox[1cm]{}}",color=BLACK);
         tArr2 = tArr.copy()
         put_on_arrow =lambda x,Ar: x.next_to(Ar,TOP,buff=SMALL_BUFF)
 
