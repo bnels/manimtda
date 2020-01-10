@@ -29,13 +29,13 @@ class Seq(VMobject):
         self.lst = lst
     def __call__(self):
         return self.lst
-    def anchor_position(self, idx):
+    def anchor_position(self, idx, buff = SMALL_BUFF):
         anchor = self.lst[idx]
         for i in range(idx+1,len(self.lst)):
-            self.lst[i].next_to(anchor,RIGHT)
+            self.lst[i].next_to(anchor,RIGHT,buff = buff)
             anchor = self.lst[i]
         anchor = self.lst[idx]
         for i in range(idx-1,-1,-1):
-            self.lst[i].next_to(anchor,LEFT)
+            self.lst[i].next_to(anchor,LEFT, buff = buff)
             anchor = self.lst[i]
         return self
