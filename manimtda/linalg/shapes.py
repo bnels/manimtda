@@ -23,16 +23,16 @@ def Pmat(color=WHITE):
         Dot(np.array([-0.66, -0.33, 0]),color=color)
     )
 
-def Lmat(color=BLUE):
+def Lmat(color=BLUE,corner_radius=0.5):
     Lverts = (np.array([-1, -1, 0]), np.array([1, -1, 0]), np.array([-1, 1, 0]))
     return VGroup(
         Square(color=color),
-        Polygon(*Lverts, color=color).set_fill(color, opacity=0.5)
+        Polygon(*Lverts, color=color).set_fill(color, opacity=0.5).round_corners(corner_radius)
     )
 
-def Umat(color=RED):
+def Umat(color=RED,corner_radius=0.5):
     Uverts = (np.array([1, 1, 0]), np.array([1, -1, 0]), np.array([-1, 1, 0]))
     return VGroup(
         Square(color=color),
-        Polygon(*Uverts, color=color).set_fill(color, opacity=0.5)
+        Polygon(*Uverts, color=color).set_fill(color, opacity=0.5).round_corners(corner_radius)
     )
