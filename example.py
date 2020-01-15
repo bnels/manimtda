@@ -298,3 +298,28 @@ class GrowBalls(Scene):
 		self.play(
 			*(FadeOut(c) for c in cs)
 		)
+
+
+
+class Diagram(Scene):
+	CONFIG = {
+		"camera_config":{"background_color":WHITE},
+	}
+	def construct(self):
+		pairs = [[0,1], [0,np.inf], [0.75, 1.5]]
+		dims = [0, 0, 1]
+		colors = [BLUE, RED]
+		PD = PersistenceDiagram(pairs, dims, colors)
+
+		print(PD.tmin, PD.tmax)
+
+		ax = PD.add_axes()
+		self.play(ShowCreation(ax))
+		self.wait()
+
+		self.play(*PD.step_to(0.5))
+		self.wait()
+		self.play(*PD.step_to(1.0))
+		self.wait()
+		self.play(*PD.step_to(np.inf))
+		self.wait()
