@@ -5,7 +5,7 @@ from manimlib.imports import *
 import numpy as np
 
 
-class SimplicialComplex(VGroup):
+class SimplicialFiltration(VGroup):
 	def __init__(
 		self,
 		points,
@@ -59,7 +59,7 @@ class SimplicialComplex(VGroup):
 		if len(spx) == 1:
 			# add dot
 			self.add(
-				Dot(self.pts[spx[0]], **kwargs)
+				Dot(self.pts[spx[0]].reshape(1,-1), **kwargs)
 			)
 			self.time.append(t)
 			self.dims.append(0)
@@ -82,7 +82,7 @@ class SimplicialComplex(VGroup):
 				Polygon(
 					*[self.pts[i] for i in spx],
 					**kwargs
-				).set_fill(self.color, opacity=self.tri_opacity)
+				).set_fill(self.color, opacity=self.tri_opacity).round_corners(0.5)
 			)
 			self.time.append(t)
 			self.dims.append(2)
@@ -183,3 +183,22 @@ def to_sphere(p, rad=10.0, shift=np.array([0,0,0]), hshift=0, vshift=0):
     x = (p[0] + hshift)/rad
     y = (p[1] + vshift)/rad
     return shift + rad*np.array([np.cos(y)*np.sin(x), np.sin(y), np.cos(y)*np.cos(x) - 1])
+
+def get_filt(F):
+	"""
+	get filtration data from bats filtration
+	"""
+	spxs = []
+	ts = []
+	for d in range(F.maxdim() + 1):
+		ts.extend(F.vals(d))
+		spxs.extend(F.complex().get_simplices(d))
+
+	return spxs, ts
+
+def filtration_from_bats(F, pts, **kwargs):
+	"""
+	get manimtda filtration from bats filtration
+	"""
+	spxs, ts = get_filt(F)
+	return SimplicialFiltration(pts, spxs, ts, **kwargs)
