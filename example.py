@@ -311,6 +311,8 @@ class Diagram(Scene):
 		colors = [BLUE, RED]
 		PD = PersistenceDiagram(pairs, dims, colors)
 
+		PD.shift(2*LEFT)
+		PD.scale_by(1.5)
 		print(PD.tmin, PD.tmax)
 
 		ax = PD.add_axes()
@@ -323,3 +325,56 @@ class Diagram(Scene):
 		self.wait()
 		self.play(*PD.step_to(np.inf))
 		self.wait()
+
+
+def diagram_from_bats(F, colors):
+	"""
+	create persistence diagram from bats
+	"""
+	FC2 = bats.FilteredF2ChainComplex(F)
+	RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
+	ps = []
+	ds = []
+	for d in range(len(colors)):
+		for p in RFC2.persistence_pairs(d):
+			ds.append(p.dim())
+			ps.append([p.birth(), p.death()])
+	return PersistenceDiagram(ps, ds, colors)
+
+
+
+class FiltrationDiagram(Scene):
+	CONFIG = {
+		"camera_config":{"background_color":WHITE},
+	}
+	def construct(self):
+		pts = gen_circle2(10, r=2.5)
+		pts = pts + np.random.normal(scale=0.2, size=pts.shape)
+
+		# Fbats = WeakAlphaFiltration(pts)
+		Fbats = RipsFiltration(pts)
+		PD = diagram_from_bats(Fbats, [BLUE, RED])
+		PD.shift(5*LEFT + DOWN)
+		PD.scale_by(0.5)
+
+		pts = np.hstack((pts, np.zeros((pts.shape[0], 1))))
+
+		F = filtration_from_bats(Fbats, pts, color=BLACK)
+		F.shift(3*RIGHT)
+
+		t = 0.0
+		anim = []
+		Ft = F.step_to(t)
+		anim.append(FadeIn(Ft))
+		self.play(*anim)
+		ax = PD.add_axes()
+		self.play(ShowCreation(ax))
+		self.wait()
+
+		for t in [0.5, 2.0, 3.0, 4.0, 5.0]:
+			anim = []
+			Ft = F.step_to(t)
+			anim.append(FadeIn(Ft))
+			anim.extend(PD.step_to(t))
+			self.play(*anim)
+			self.wait()

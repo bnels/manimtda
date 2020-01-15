@@ -82,7 +82,7 @@ class SimplicialFiltration(VGroup):
 				Polygon(
 					*[self.pts[i] for i in spx],
 					**kwargs
-				).set_fill(self.color, opacity=self.tri_opacity).round_corners(0.5)
+				).set_fill(self.color, opacity=self.tri_opacity)#.round_corners(0.5)
 			)
 			self.time.append(t)
 			self.dims.append(2)
