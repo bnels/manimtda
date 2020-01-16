@@ -187,44 +187,6 @@ def Transform_circle_radii(cs, r, **kwargs):
 	cs1 = [Circle(radius=r, arc_center=p, **kwargs) for p in pts]
 	return [Transform(c0, c1) for c0, c1 in zip(cs, cs1)]
 
-from itertools import combinations
-from scipy.spatial import Delaunay
-from scipy.spatial import distance
-
-def unique_edges(faces):
-    """
-    obtain unique simplices up to dimension dim from faces
-    """
-    edges = []
-    # loop over faces
-    for face in faces:
-        # loop over dimension
-        for s in combinations(face, 2):
-            edges.append(np.sort(list(s)))
-
-    edges = np.unique(edges, axis=0)
-
-    return edges
-
-
-def WeakAlphaFiltration(pts, dist=distance.euclidean, maxdim=2, t0=0.):
-    """
-    2D weak alpha filtration
-    """
-    tri = Delaunay(pts)
-    edges = unique_edges(tri.simplices)
-    fedges = []
-    for e in edges:
-        fedges.append(bats.FilteredEdge(*e, dist(pts[e[0]], pts[e[1]])))
-
-    F = bats.FlagFiltration(fedges, pts.shape[0], maxdim, t0)
-    return F
-
-def RipsFiltration(pts, maxdim=2):
-	pts = np.array(pts.T, dtype=np.float, order='F')
-	data = bats.DataSet(bats.DenseDoubleMatrix(pts))
-	return bats.RipsFiltration(data, bats.Euclidean(), np.inf, maxdim)
-
 
 class GrowBalls(Scene):
 	CONFIG = {
@@ -327,37 +289,34 @@ class Diagram(Scene):
 		self.wait()
 
 
-def diagram_from_bats(F, colors):
-	"""
-	create persistence diagram from bats
-	"""
-	FC2 = bats.FilteredF2ChainComplex(F)
-	RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
-	ps = []
-	ds = []
-	for d in range(len(colors)):
-		for p in RFC2.persistence_pairs(d):
-			ds.append(p.dim())
-			ps.append([p.birth(), p.death()])
-	return PersistenceDiagram(ps, ds, colors)
-
-
 
 class FiltrationDiagram(Scene):
 	CONFIG = {
 		"camera_config":{"background_color":WHITE},
 	}
 	def construct(self):
-		pts = gen_circle2(10, r=2.5)
-		pts = pts + np.random.normal(scale=0.15, size=pts.shape)
+		pts = gen_circle2(20, r=2.5)
+		pts = pts + np.random.normal(scale=0.2, size=pts.shape)
 
 		# Fbats = WeakAlphaFiltration(pts)
 		Fbats = RipsFiltration(pts)
 		FC2 = bats.FilteredF2ChainComplex(Fbats)
 		RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
-		p = RFC2.persistence_pairs(1)[0]
+
+		# subcomplex for 0-length gen
+		p = RFC2.persistence_pairs(1)[1]
 		v =  RFC2.representative(p)
-		subcpx = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
+		subcpx0 = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
+		coface0 = [Fbats.complex().get_simplex(p.dim()+1, p.death_ind())]
+
+		ps = RFC2.persistence_pairs(1)
+		lens = []
+		for p in ps:
+			lens.append(p.death() - p.birth())
+		i = np.argmax(lens)
+		p = ps[i]
+		v =  RFC2.representative(p)
+		subcpx1 = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
 
 		PD = diagram_from_bats(Fbats, [BLUE, RED])
 		PD.shift(5*LEFT + DOWN)
@@ -377,7 +336,7 @@ class FiltrationDiagram(Scene):
 		self.play(ShowCreation(ax))
 		self.wait()
 
-		for t in [0.5, 2.0, 3.0]:
+		for t in [0.5, 1.0, 2.0]:
 			anim = []
 			Ft = F.step_to(t)
 			anim.append(FadeIn(Ft))
@@ -385,8 +344,27 @@ class FiltrationDiagram(Scene):
 			self.play(*anim)
 			self.wait()
 
+		# animate coloring of boundary and face
+		SC0 = F.get_subcomplex(subcpx0)
+		SCF = F.get_subcomplex(coface0)
+		self.play(
+			SC0.set_color,
+			RED
+		)
+		self.wait()
+		self.play(
+			SCF.set_color,
+			RED
+		)
+		self.wait()
+		self.play(
+			VGroup(SC0, SCF).set_color,
+			BLACK
+		)
+		self.wait()
+
 		# animate coloring of subcomplex
-		SC = F.get_subcomplex(subcpx)
+		SC = F.get_subcomplex(subcpx1)
 		self.play(
 			SC.set_color,
 			RED
@@ -397,8 +375,7 @@ class FiltrationDiagram(Scene):
 			BLACK
 		)
 
-
-		for t in [4.0, 5.0]:
+		for t in [3.0, 5.0]:
 			anim = []
 			Ft = F.step_to(t)
 			anim.append(FadeIn(Ft))

@@ -4,6 +4,7 @@ PersistenceDiagram
 
 from manimlib.imports import *
 import numpy as np
+import bats
 
 class PersistenceDiagram(VGroup):
 	def __init__(
@@ -46,7 +47,11 @@ class PersistenceDiagram(VGroup):
 		self.add(xax)
 		self.add(yax)
 		self.add(dax)
-		return VGroup(dax, xax, yax)
+		xlab = TextMobject("birth", color=BLACK).next_to(xax, DOWN).shift(0.1*UP)
+		ylab = TextMobject("death", color=BLACK).next_to(yax, LEFT).rotate(TAU/4).shift(0.4*RIGHT)
+		self.add(xlab)
+		self.add(ylab)
+		return VGroup(dax, xax, yax, xlab, ylab)
 
 	def set_limits(self):
 		"""
@@ -100,3 +105,18 @@ class PersistenceDiagram(VGroup):
 			if self.t < p[0] <= t:
 				anim.append(FadeInFrom(self.add_pt(p, t, self.colors[d]), DOWN))
 		return anim
+
+
+def diagram_from_bats(F, colors):
+	"""
+	create persistence diagram from bats Filtration
+	"""
+	FC2 = bats.FilteredF2ChainComplex(F)
+	RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
+	ps = []
+	ds = []
+	for d in range(len(colors)):
+		for p in RFC2.persistence_pairs(d):
+			ds.append(p.dim())
+			ps.append([p.birth(), p.death()])
+	return PersistenceDiagram(ps, ds, colors)
