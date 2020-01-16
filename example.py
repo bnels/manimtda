@@ -382,3 +382,97 @@ class FiltrationDiagram(Scene):
 			anim.extend(PD.step_to(t))
 			self.play(*anim)
 			self.wait()
+
+
+class Barcode(Scene):
+	CONFIG = {
+		"camera_config":{"background_color":WHITE},
+	}
+	def construct(self):
+		pairs = [[0,1], [0,np.inf], [0.75, 1.5]]
+		dims = [0, 0, 1]
+		colors = [BLUE, RED]
+		PD = PersistenceBarcode(pairs, dims, colors, spacing=0.2)
+
+		PD.shift(2*LEFT)
+		PD.scale_by(1.5)
+		print(PD.tmin, PD.tmax)
+
+		self.play(*PD.step_to(0.5))
+		self.wait()
+		self.play(*PD.step_to(1.0))
+		self.wait()
+		self.play(*PD.step_to(np.inf))
+		self.wait()
+
+class FiltrationBarcode(Scene):
+	CONFIG = {
+		"camera_config":{"background_color":WHITE},
+	}
+	def construct(self):
+		pts = gen_circle2(20, r=2.5)
+		pts = pts + np.random.normal(scale=0.2, size=pts.shape)
+
+		# Fbats = WeakAlphaFiltration(pts)
+		Fbats = RipsFiltration(pts)
+		FC2 = bats.FilteredF2ChainComplex(Fbats)
+		RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
+
+		# subcomplex for 0-length gen
+		p = RFC2.persistence_pairs(1)[1]
+		v =  RFC2.representative(p)
+		subcpx0 = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
+		coface0 = [Fbats.complex().get_simplex(p.dim()+1, p.death_ind())]
+
+		ps = RFC2.persistence_pairs(1)
+		lens = []
+		for p in ps:
+			lens.append(p.death() - p.birth())
+		i = np.argmax(lens)
+		p = ps[i]
+		v =  RFC2.representative(p)
+		subcpx1 = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
+
+		PD = barcode_from_bats(Fbats, [BLUE, RED], spacing=0.2)
+		PD.shift(5*LEFT + UP)
+		PD.scale_by(0.5)
+
+		pts = np.hstack((pts, np.zeros((pts.shape[0], 1))))
+
+		F = filtration_from_bats(Fbats, pts, color=BLACK)
+		F.shift(3*RIGHT)
+
+		t = 0.0
+		anim = []
+		Ft = F.step_to(t)
+		anim.append(FadeIn(Ft))
+		self.play(*anim)
+		self.wait()
+
+		for t in [0.5, 1.0, 2.0]:
+			anim = []
+			Ft = F.step_to(t)
+			anim.append(FadeIn(Ft))
+			anim.extend(PD.step_to(t))
+			self.play(*anim)
+			self.wait()
+
+		# animate coloring of subcomplex
+		SC = F.get_subcomplex(subcpx1)
+		self.play(
+			SC.set_color,
+			RED
+		)
+		self.wait()
+		self.play(
+			SC.set_color,
+			BLACK
+		)
+
+		for t in [3.0, 5.0]:
+			anim = []
+			Ft = F.step_to(t)
+			anim.append(FadeIn(Ft))
+			anim.extend(PD.step_to(t))
+			self.play(*anim)
+			self.wait()
