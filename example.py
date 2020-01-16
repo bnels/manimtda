@@ -349,10 +349,16 @@ class FiltrationDiagram(Scene):
 	}
 	def construct(self):
 		pts = gen_circle2(10, r=2.5)
-		pts = pts + np.random.normal(scale=0.2, size=pts.shape)
+		pts = pts + np.random.normal(scale=0.15, size=pts.shape)
 
 		# Fbats = WeakAlphaFiltration(pts)
 		Fbats = RipsFiltration(pts)
+		FC2 = bats.FilteredF2ChainComplex(Fbats)
+		RFC2 = bats.ReducedFilteredF2ChainComplex(FC2)
+		p = RFC2.persistence_pairs(1)[0]
+		v =  RFC2.representative(p)
+		subcpx = [Fbats.complex().get_simplex(p.dim(),i) for i in v.nzinds()]
+
 		PD = diagram_from_bats(Fbats, [BLUE, RED])
 		PD.shift(5*LEFT + DOWN)
 		PD.scale_by(0.5)
@@ -371,7 +377,28 @@ class FiltrationDiagram(Scene):
 		self.play(ShowCreation(ax))
 		self.wait()
 
-		for t in [0.5, 2.0, 3.0, 4.0, 5.0]:
+		for t in [0.5, 2.0, 3.0]:
+			anim = []
+			Ft = F.step_to(t)
+			anim.append(FadeIn(Ft))
+			anim.extend(PD.step_to(t))
+			self.play(*anim)
+			self.wait()
+
+		# animate coloring of subcomplex
+		SC = F.get_subcomplex(subcpx)
+		self.play(
+			SC.set_color,
+			RED
+		)
+		self.wait()
+		self.play(
+			SC.set_color,
+			BLACK
+		)
+
+
+		for t in [4.0, 5.0]:
 			anim = []
 			Ft = F.step_to(t)
 			anim.append(FadeIn(Ft))

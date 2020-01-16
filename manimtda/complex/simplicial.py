@@ -24,6 +24,7 @@ class SimplicialFiltration(VGroup):
 		self.time = []
 		self.dims = []
 
+		self.simplices = simplices
 		for (s, t) in zip(simplices, times):
 			self.add_simplex(s, t, **kwargs)
 
@@ -49,10 +50,16 @@ class SimplicialFiltration(VGroup):
 		self.current_time = -np.inf
 		return self.current_time
 
-
 	def at_time(self, t):
 		return VGroup(*[self[i] for i in range(len(self.time)) if self.time[i] <= t])
 
+	def get_simplex_idx(self, spx):
+		for i, s in enumerate(self.simplices):
+			if s == spx:
+				return i
+
+	def get_subcomplex(self, simplices):
+		return VGroup(*[self[self.get_simplex_idx(s)] for s in simplices])
 
 	def add_simplex(self, spx, t, **kwargs):
 		# print("adding ", spx)
