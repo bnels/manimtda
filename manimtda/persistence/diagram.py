@@ -23,13 +23,15 @@ class PersistenceDiagram(VGroup):
 		self.pts = []
 		self.origin = ORIGIN
 		self.scale = 1.0
+		self.axes_added = False
 
 		self.set_limits()
 
-	def shift(self, offset):
+	def shift(self, offset, **kwargs):
 		"""
 		shift diagram by offset
 		"""
+		super().shift(offset, **kwargs)
 		self.origin = self.origin + offset
 
 	def scale_by(self, s):
@@ -51,6 +53,7 @@ class PersistenceDiagram(VGroup):
 		ylab = TextMobject("death", color=BLACK).next_to(yax, LEFT).rotate(TAU/4).shift(0.4*RIGHT)
 		self.add(xlab)
 		self.add(ylab)
+		self.axes_added=True
 		return VGroup(dax, xax, yax, xlab, ylab)
 
 	def set_limits(self):
@@ -67,8 +70,11 @@ class PersistenceDiagram(VGroup):
 		"""
 		t = min(t, self.tmax)
 		anim = []
+		if not self.axes_added:
+			anim.append(ShowCreation(self.add_axes()))
 		if self.t == -np.inf:
 			self.bar = Line(self.scale *np.array([self.tmin, t, 0]) + self.origin, self.scale * np.array([t, t, 0]) + self.origin, color=GREY)
+			self.add(self.bar)
 			anim.append(FadeInFrom(self.bar, DOWN))
 			anim.extend(self.add_pts(t))
 		else:
@@ -94,6 +100,7 @@ class PersistenceDiagram(VGroup):
 		self.pt_data.append([p[0], p[1], t, color])
 		pt = Dot(self.scale *np.array([p[0], min(p[1], t), 0]) + self.origin, color=color)
 		self.pts.append(pt)
+		self.add(pt)
 		return pt
 
 	def add_pts(self, t):

@@ -405,6 +405,13 @@ class Barcode(Scene):
 		self.play(*PD.step_to(np.inf))
 		self.wait()
 
+		self.play(
+			PD.shift,
+			LEFT
+		)
+		self.wait()
+
+
 class FiltrationBarcode(Scene):
 	CONFIG = {
 		"camera_config":{"background_color":WHITE},
@@ -476,3 +483,25 @@ class FiltrationBarcode(Scene):
 			anim.extend(PD.step_to(t))
 			self.play(*anim)
 			self.wait()
+
+		PPs = AbstractPairs([2,2], [BLUE, RED]).shift(3*LEFT)
+		self.play(Transform(PD, PPs))
+		self.wait()
+
+		PD2 = diagram_from_bats(Fbats, [BLUE, RED])
+		PD2.shift(5*LEFT + DOWN)
+		PD2.scale_by(0.5)
+		PD2.step_to(5.0)
+
+		self.play(Transform(PD, PD2))
+		self.wait(2)
+
+
+class Pairs(Scene):
+	CONFIG = {
+		"camera_config":{"background_color":WHITE},
+	}
+	def construct(self):
+		PD = AbstractPairs([2, 2],[BLUE, RED])
+		self.play(ShowCreation(PD))
+		self.wait()
